@@ -7,10 +7,18 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.ResIterator;
+import org.apache.jena.rdf.model.Resource;
 
 /**
  * Servlet implementation class ServletFich
@@ -59,17 +67,58 @@ public class ServletFich extends HttpServlet {
 					request.getRequestDispatcher(envio).forward(request, response);
 
 				} else {
-					request.setAttribute("dato1", dato1);
-					request.setAttribute("dato2", dato2);
-					request.setAttribute("dato3", dato3);
-					request.setAttribute("dato4", dato4);
-					request.setAttribute("dato5", dato5);
-					request.setAttribute("dato6", dato6);
+					if("RDF".equalsIgnoreCase(formato)) {
+						Model model = ModelFactory.createDefaultModel();
+						String rutaRDF = getServletContext().getRealPath("/datos/datos.rdf");
+						
 
-					envio = "AccesoDatosA.jsp";
-					request.getRequestDispatcher(envio).forward(request, response);
+						// Si el fichero existe, léelo primero
+						File fichero = new File(rutaRDF);
+						if(fichero.exists()) {
+						    try(FileInputStream fis = new FileInputStream(fichero)) {
+						        model.read(fis, null, "RDF/XML");
+						    } catch(IOException e) {
+						    	envio = "Error.jsp";
+								request.getRequestDispatcher(envio).forward(request, response);
+						    }
+						}
+						
+						String ns = "https://reto1ManejoFicheros/";
+						Resource r = model.createResource(ns + "registro_" + System.currentTimeMillis());
+						r.addProperty(model.createProperty(ns, "dato1"), dato1);
+						r.addProperty(model.createProperty(ns, "dato2"), dato2);
+						r.addProperty(model.createProperty(ns, "dato3"), dato3);
+						r.addProperty(model.createProperty(ns, "dato4"), dato4);
+						r.addProperty(model.createProperty(ns, "dato5"), dato5);
+						r.addProperty(model.createProperty(ns, "dato6"), dato6);
+						
+						try(FileOutputStream fos =  new FileOutputStream(rutaRDF)) {
+							model.write(fos, "RDF/XML");
+						}catch(IOException e) {
+							request.setAttribute("mensajeError", e.getMessage());
+							envio = "Error.jsp";
+							request.getRequestDispatcher(envio).forward(request, response);
+						}
+						request.setAttribute("dato1", dato1);
+						request.setAttribute("dato2", dato2);
+						request.setAttribute("dato3", dato3);
+						request.setAttribute("dato4", dato4);
+						request.setAttribute("dato5", dato5);
+						request.setAttribute("dato6", dato6);
+						envio = "AccesoDatosA.jsp";
+						request.getRequestDispatcher(envio).forward(request, response);
+					}else {
+						request.setAttribute("dato1", dato1);
+						request.setAttribute("dato2", dato2);
+						request.setAttribute("dato3", dato3);
+						request.setAttribute("dato4", dato4);
+						request.setAttribute("dato5", dato5);
+						request.setAttribute("dato6", dato6);
+
+						envio = "AccesoDatosA.jsp";
+						request.getRequestDispatcher(envio).forward(request, response);
+					}
 				}
-
 			}
 			//LECTURA
 			else {
@@ -88,8 +137,8 @@ public class ServletFich extends HttpServlet {
 					
 
 				} else if ("RDF".equalsIgnoreCase(formato)) {
-					
-
+					leerRDF(request, response);
+					return;
 				} else {
 					throw new Exception("Formato no reconocido");
 				}
@@ -132,6 +181,46 @@ public class ServletFich extends HttpServlet {
 			throw new ServletException("Error leyendo el fichero CSV");
 		}
 	}
+	
+	// Lectura de RDF --> Juan
+	private void leerRDF(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		
+		String rutaRDF = getServletContext().getRealPath("/datos/datos.rdf");
+		Model model = ModelFactory.createDefaultModel();
+
+		try(FileInputStream fis = new FileInputStream(rutaRDF)) {
+		    model.read(fis, null, "RDF/XML");
+		} catch(IOException e) {
+			request.setAttribute("mensajeError", e.getMessage());
+			request.getRequestDispatcher("Error.jsp").forward(request, response);
+		}
+		
+		List<String[]> datos = new ArrayList<>();
+
+		String ns = "https://reto1ManejoFicheros/";
+
+		ResIterator resIt = model.listResourcesWithProperty(model.createProperty(ns, "dato1"));
+		
+		while(resIt.hasNext()) {
+		    Resource res = resIt.nextResource();
+		    String d1 = res.getProperty(model.createProperty(ns, "dato1")) != null ? res.getProperty(model.createProperty(ns, "dato1")).getString() : "";
+		    String d2 = res.getProperty(model.createProperty(ns, "dato2")) != null ? res.getProperty(model.createProperty(ns, "dato2")).getString() : "";
+		    String d3 = res.getProperty(model.createProperty(ns, "dato3")) != null ? res.getProperty(model.createProperty(ns, "dato3")).getString() : "";
+		    String d4 = res.getProperty(model.createProperty(ns, "dato4")) != null ? res.getProperty(model.createProperty(ns, "dato4")).getString() : "";
+		    String d5 = res.getProperty(model.createProperty(ns, "dato5")) != null ? res.getProperty(model.createProperty(ns, "dato5")).getString() : "";
+		    String d6 = res.getProperty(model.createProperty(ns, "dato6")) != null ? res.getProperty(model.createProperty(ns, "dato6")).getString() : "";
+
+		    datos.add(new String[]{d1, d2, d3, d4, d5, d6});
+		}
+		
+		request.setAttribute("mensaje", "Lectura del fichero RDF correcta");
+		request.setAttribute("datosRDF", datos);
+
+		String envio = "TratamientoFich.jsp"; 
+		request.getRequestDispatcher(envio).forward(request, response);
+	}
+	
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
