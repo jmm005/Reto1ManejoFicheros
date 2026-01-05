@@ -50,16 +50,26 @@
     %>
     
     <script>
+ 		// Obtiene todos los radio buttons con nombre "accion"
 		const radios = document.getElementsByName("accion");
+ 		
+		// Obtiene todos los campos de texto y textarea del formulario
 		const campos = document.querySelectorAll('input[type="text"], textarea');
 		
+		// Función que habilita o deshabilita los campos según la acción seleccionada
 		function actualizarCampos() {
+			// Comprueba si el radio seleccionado tiene valor "escritura"
 		    const esEscritura = Array.from(radios).find(r => r.checked).value === "escritura";
+			
+		 	// Recorre todos los campos y los habilita o deshabilita según la acción
 		    campos.forEach(c => c.disabled = !esEscritura);
 		}
 		
+		// Añade un listener a cada radio para actualizar los campos cuando cambie la selección
 		radios.forEach(r => r.addEventListener("change", actualizarCampos));
-		actualizarCampos(); // inicializa estado
+		
+		// Llama a la función al cargar la página para inicializar el estado de los campos
+		actualizarCampos(); 
 	</script>
 </body>
 </html>
