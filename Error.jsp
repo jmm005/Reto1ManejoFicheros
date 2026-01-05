@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>Error</title>
 </head>
 <body>
 <h2 style="color:red; text-align:center;">❌ Error en el tratamiento del fichero</h2>

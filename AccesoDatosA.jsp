@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>Datos</title>
 </head>
 <%
 	String dato1 = (String) request.getAttribute("dato1");
