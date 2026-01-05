@@ -38,7 +38,7 @@ public class ServletFich extends HttpServlet {
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		
 		// Variables donde se guardan el mensaje y a dónde se envía la información
@@ -82,12 +82,21 @@ public class ServletFich extends HttpServlet {
 					if("RDF".equalsIgnoreCase(formato)) {
 						// Crea un modelo RDF por defecto usando Jena
 						Model model = ModelFactory.createDefaultModel();
-						// Obtiene la ruta absoluta del fichero RDF dentro del proyecto web 
-						// (.metadata\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps\Reto1ManejoFicheros\datos (en el workspace del proyecto))
-						String rutaRDF = getServletContext().getRealPath("/datos/datos.rdf");
+						// Obtiene la ruta del fichero RDF
+						String rutaRDF = "C:/Reto1ManejoFicheros/datos.rdf";
 						
-						// Comprueba si el fichero existe
+						// Variable donde se guarda la ruta del fichero
 						File fichero = new File(rutaRDF);
+						
+						// Variable donde se guarda la ruta de la carpeta donde está el fichero
+					    File carpeta = fichero.getParentFile();
+
+						// Si la carpeta no existe
+						if (!carpeta.exists()) {
+							// Crea la carpeta
+						    carpeta.mkdirs(); 
+						}
+						
 						// Si existe, lee el contenido RDF/XML en el modelo
 						if(fichero.exists()) {
 						    try(FileInputStream fis = new FileInputStream(fichero)) {
@@ -101,14 +110,6 @@ public class ServletFich extends HttpServlet {
 								// Redirige a la página cuyo valor es el valor de "envio"
 								request.getRequestDispatcher(envio).forward(request, response);
 						    }
-						// Si no existe
-						}else {
-							// Se muestra un mensaje en 'Error.jsp' indicando que el fichero no existe
-							request.setAttribute("mensaje", "El fichero no existe");
-							// Valor de la variable "envio"
-							envio = "Error.jsp";
-							// Redirige a la página cuyo valor es el valor de "envio"
-							request.getRequestDispatcher(envio).forward(request, response);
 						}
 						
 						// Define un namespace para los recursos RDF
@@ -237,8 +238,33 @@ public class ServletFich extends HttpServlet {
 	private void leerRDF(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		
-		// Obtiene la ruta absoluta del fichero RDF dentro del proyecto web 
-		String rutaRDF = getServletContext().getRealPath("/datos/datos.rdf");
+		// Obtiene la ruta del fichero RDF 
+		String rutaRDF = "C:/Reto1ManejoFicheros/datos.rdf";
+		
+		// Variable donde se guarda la ruta del fichero
+		File fichero = new File(rutaRDF);
+		
+		// Variable donde se guarda la ruta de la carpeta donde está el fichero
+	    File carpeta = fichero.getParentFile();
+	    
+	    // Crea la carpeta si no existe
+	    if (!carpeta.exists()) {
+	        carpeta.mkdirs();
+	    }
+
+	    // Crea el fichero si no existe
+	    if (!fichero.exists()) {
+	    	// Crea el fichero con lo mínimo de RDF si no existe
+	    	try (FileOutputStream fos = new FileOutputStream(fichero)) {
+	            fos.write((
+	                "<?xml version=\"1.0\"?>\n" +
+	                "<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n" +
+	                "         xmlns:ex=\"https://reto1ManejoFicheros/\">\n" +
+	                "</rdf:RDF>"
+	            ).getBytes());
+	        }
+	    }
+
 		// Crea un modelo RDF por defecto usando Jena
 		Model model = ModelFactory.createDefaultModel();
 
