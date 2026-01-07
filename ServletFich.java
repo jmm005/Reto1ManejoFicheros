@@ -76,6 +76,19 @@ public class ServletFich extends HttpServlet {
 					// Redirige a la página de la variable envio
 					request.getRequestDispatcher(envio).forward(request, response);
 
+				} else if ("JSON".equalsIgnoreCase(formato)) {
+					escribirJSON(request);
+					
+					// Pasar datos al request para visualizarlos en AccesoDatosA.jsp 
+					request.setAttribute("dato1", dato1);
+					request.setAttribute("dato2", dato2);
+					request.setAttribute("dato3", dato3);
+					request.setAttribute("dato4", dato4);
+					request.setAttribute("dato5", dato5);
+					request.setAttribute("dato6", dato6);
+
+					request.setAttribute("mensaje", "Escritura en JSON realizada correctamente");
+					request.getRequestDispatcher("AccesoDatosA.jsp").forward(request, response);
 				} else {
 					// Escritura RDF --> Juan
 					// Si el formato elegido es RDF
@@ -170,6 +183,11 @@ public class ServletFich extends HttpServlet {
    						envio = "AccesoDatosA.jsp";
     					request.getRequestDispatcher(envio).forward(request, response);
 
+					
+					} else if ("JSON".equalsIgnoreCase(formato)) {
+    					// Llama al método leerJSON 
+    					leerJSON(request, response);
+    					return;
 					} else {
 
 					    // Otros formatos (aún no implementados)
@@ -316,6 +334,84 @@ public class ServletFich extends HttpServlet {
 	            ).getBytes());
 	        }
 	    }
+		// Lectura de JSON --> [Iván]
+		private void leerJSON(HttpServletRequest request, HttpServletResponse response)
+				throws ServletException, IOException {
+
+			String rutaJSON = "C:/ficheros/parking-movilidad-reducida.json";
+			File fichero = new File(rutaJSON);
+			List<String[]> datos = new ArrayList<>();
+
+			// 1. Verificar si el fichero existe
+			if (!fichero.exists()) {
+				request.setAttribute("mensaje", "El fichero JSON no existe.");
+				request.getRequestDispatcher("TratamientoFich.jsp").forward(request, response);
+				return;
+			}
+
+			try (FileReader reader = new FileReader(fichero)) {
+				// Usamos Gson para parsear el archivo a una lista de arrays de Strings
+				// Importante: Asegúrate de tener gson-2.x.x.jar en tu carpeta lib
+				com.google.gson.Gson gson = new com.google.gson.Gson();
+				java.lang.reflect.Type listType = new com.google.gson.reflect.TypeToken<ArrayList<String[]>>(){}.getType();
+				
+				datos = gson.fromJson(reader, listType);
+
+				if (datos == null) {
+					datos = new ArrayList<>();
+				}
+
+				// 2. Pasar los datos a la vista según el flujo solicitado 
+				request.setAttribute("mensaje", "Lectura del fichero JSON correcta");
+				request.setAttribute("datosJSON", datos);
+
+				// 3. Redirigir a la página de tratamiento 
+				request.getRequestDispatcher("TratamientoFich.jsp").forward(request, response);
+
+			} catch (Exception e) {
+				// En caso de error, enviar a la página de error del flujo 
+				request.setAttribute("mensajeError", "Error procesando JSON: " + e.getMessage());
+				request.getRequestDispatcher("Error.jsp").forward(request, response);
+			}
+		}
+		// Escritura de JSON --> [Iván]
+			private void escribirJSON(HttpServletRequest request) throws IOException {
+				String rutaJSON = "C:/ficheros/parking-movilidad-reducida.json";
+				File fichero = new File(rutaJSON);
+				com.google.gson.Gson gson = new com.google.gson.GsonBuilder().setPrettyPrinting().create();
+				List<String[]> listaDatos;
+
+				// 1. Leer datos existentes para no sobrescribir todo el fichero
+				if (fichero.exists() && fichero.length() > 0) {
+					try (FileReader reader = new FileReader(fichero)) {
+						java.lang.reflect.Type listType = new com.google.gson.reflect.TypeToken<ArrayList<String[]>>(){}.getType();
+						listaDatos = gson.fromJson(reader, listType);
+						if (listaDatos == null) listaDatos = new ArrayList<>();
+					}
+				} else {
+					listaDatos = new ArrayList<>();
+					fichero.getParentFile().mkdirs(); // Crear carpetas si no existen 
+				}
+
+				// 2. Crear el nuevo registro con los datos del formulario
+				String[] nuevoRegistro = {
+					request.getParameter("dato1"),
+					request.getParameter("dato2"),
+					request.getParameter("dato3"),
+					request.getParameter("dato4"),
+					request.getParameter("dato5"),
+					request.getParameter("dato6")
+				};
+				listaDatos.add(nuevoRegistro);
+
+				// 3. Guardar la lista actualizada en el fichero
+				try (FileWriter writer = new FileWriter(fichero)) {
+					gson.toJson(listaDatos, writer);
+				}
+			}
+
+
+
 
 		// Crea un modelo RDF por defecto usando Jena
 		Model model = ModelFactory.createDefaultModel();
