@@ -83,7 +83,7 @@ public class ServletFich extends HttpServlet {
 						// Crea un modelo RDF por defecto usando Jena
 						Model model = ModelFactory.createDefaultModel();
 						// Obtiene la ruta del fichero RDF
-						String rutaRDF = "C:/Reto1ManejoFicheros/datos.rdf";
+						String rutaRDF = "C:/ficheros/parking-movilidad-reducida.rdf";
 						
 						// Variable donde se guarda la ruta del fichero
 						File fichero = new File(rutaRDF);
@@ -152,6 +152,7 @@ public class ServletFich extends HttpServlet {
 						envio = "AccesoDatosA.jsp";
 						// Redirige a la página cuyo valor es el valor de "envio"
 						request.getRequestDispatcher(envio).forward(request, response);
+					// Prueba para que funcione la escritura de ficheros
 					}else {
 						request.setAttribute("dato1", dato1);
 						request.setAttribute("dato2", dato2);
@@ -239,7 +240,7 @@ public class ServletFich extends HttpServlet {
 			throws ServletException, IOException {
 		
 		// Obtiene la ruta del fichero RDF 
-		String rutaRDF = "C:/Reto1ManejoFicheros/datos.rdf";
+		String rutaRDF = "C:/ficheros/parking-movilidad-reducida.rdf";
 		
 		// Variable donde se guarda la ruta del fichero
 		File fichero = new File(rutaRDF);
