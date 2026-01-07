@@ -39,8 +39,14 @@ Aplicar los conocimientos de **acceso a datos** para trabajar con distintos tipo
 
 ## 📄 Estado del Proyecto
 
+Parte de RDF terminada
 🚧 En desarrollo
 
 ---
+
+---
+
+## Inportante
+El fichero de datos abiertos RDF debe estar en la partición C: en un carpeta llamada ficheros, para que la parte de RDF funcione, sino se creara un nuevo fichero RDF en esa ubicación.
 
 ¡Gracias por visitar nuestro proyecto! 😊
