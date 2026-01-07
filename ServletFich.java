@@ -152,17 +152,36 @@ public class ServletFich extends HttpServlet {
 						envio = "AccesoDatosA.jsp";
 						// Redirige a la página cuyo valor es el valor de "envio"
 						request.getRequestDispatcher(envio).forward(request, response);
-					// Prueba para que funcione la escritura de ficheros
-					}else {
-						request.setAttribute("dato1", dato1);
-						request.setAttribute("dato2", dato2);
-						request.setAttribute("dato3", dato3);
-						request.setAttribute("dato4", dato4);
-						request.setAttribute("dato5", dato5);
-						request.setAttribute("dato6", dato6);
+					} else if ("CSV".equalsIgnoreCase(formato)) {
 
-						envio = "AccesoDatosA.jsp";
-						request.getRequestDispatcher(envio).forward(request, response);
+    				// Escritura CSV
+   					 escribirCSV(request);
+
+    					request.setAttribute("dato1", dato1);
+    					request.setAttribute("dato2", dato2);
+    					request.setAttribute("dato3", dato3);
+    					request.setAttribute("dato4", dato4);
+    					request.setAttribute("dato5", dato5);
+  						request.setAttribute("dato6", dato6);
+
+    					mensaje = "Escritura en CSV realizada correctamente";
+    					request.setAttribute("mensaje", mensaje);
+
+   						envio = "AccesoDatosA.jsp";
+    					request.getRequestDispatcher(envio).forward(request, response);
+
+					} else {
+
+					    // Otros formatos (aún no implementados)
+					    request.setAttribute("dato1", dato1);
+					    request.setAttribute("dato2", dato2);
+					    request.setAttribute("dato3", dato3);
+					    request.setAttribute("dato4", dato4);
+					    request.setAttribute("dato5", dato5);
+					    request.setAttribute("dato6", dato6);
+					
+					    envio = "AccesoDatosA.jsp";
+					    request.getRequestDispatcher(envio).forward(request, response);
 					}
 				}
 			}
@@ -213,27 +232,59 @@ public class ServletFich extends HttpServlet {
 	
 	//Lectura de CSV --> Sandra
 	private void leerCSV(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+        throws ServletException, IOException {
 
-		String rutaCSV = getServletContext().getRealPath("/datos/datos.csv");
-		List<String[]> datos = new ArrayList<>();
-
-		try (BufferedReader br = new BufferedReader(new FileReader(rutaCSV))) {
-			String linea;
-
-			while ((linea = br.readLine()) != null) {
-				datos.add(linea.split(","));
-			}
-
-			request.setAttribute("mensaje", "Lectura del fichero CSV correcta");
-			request.setAttribute("datosCSV", datos);
-
-			request.getRequestDispatcher("TratamientoFich.jsp").forward(request, response);
-
-		} catch (Exception e) {
-			throw new ServletException("Error leyendo el fichero CSV");
-		}
+	    String rutaCSV = "C:/ficheros/parking-movilidad-reducida.csv";
+	    List<String[]> datos = new ArrayList<>();
+	
+	    try (BufferedReader br = new BufferedReader(new FileReader(rutaCSV))) {
+	        String linea;
+	
+	        while ((linea = br.readLine()) != null) {
+	            datos.add(linea.split(","));
+	        }
+	
+	        request.setAttribute("mensaje", "Lectura del fichero CSV correcta");
+	        request.setAttribute("datosCSV", datos);
+	
+	        request.getRequestDispatcher("TratamientoFich.jsp").forward(request, response);
+	
+	    } catch (Exception e) {
+	        throw new ServletException("Error leyendo el fichero CSV");
+	    }
 	}
+	
+	// Escritura de CSV --> Sandra
+	private void escribirCSV(HttpServletRequest request)
+        throws IOException {
+
+	    String rutaCSV = "C:/ficheros/parking-movilidad-reducida.csv";
+	
+	    File fichero = new File(rutaCSV);
+	    File carpeta = fichero.getParentFile();
+	
+	    if (!carpeta.exists()) {
+	        carpeta.mkdirs();
+	    }
+	
+	    if (!fichero.exists()) {
+	        fichero.createNewFile();
+	    }
+	
+	    try (FileOutputStream fos = new FileOutputStream(fichero, true)) {
+	        String linea = String.join(",",
+	                request.getParameter("dato1"),
+	                request.getParameter("dato2"),
+	                request.getParameter("dato3"),
+	                request.getParameter("dato4"),
+	                request.getParameter("dato5"),
+	                request.getParameter("dato6")
+	        );
+	
+	        fos.write((linea + System.lineSeparator()).getBytes());
+	    }
+	}
+
 	
 	// Lectura de RDF --> Juan
 	private void leerRDF(HttpServletRequest request, HttpServletResponse response)
@@ -326,3 +377,4 @@ public class ServletFich extends HttpServlet {
 	}
 
 }
+
