@@ -19,7 +19,7 @@ Este repositorio contiene el desarrollo del **Reto 1 de Acceso a Datos**, centra
 
 La planificación y seguimiento del proyecto se ha realizado mediante un **diagrama de Gantt**, disponible en el siguiente enlace:
 
-🔗 [Ver diagrama de Gantt en ClickUp](https://app.clickup.com/90152150578/v/s/90159026083)
+🔗 [Ver diagrama de Gantt](https://sharing.clickup.com/90152150578/g/h/2kyqt9hj-235/3c5f4e50851c62a)
 
 ---
 
