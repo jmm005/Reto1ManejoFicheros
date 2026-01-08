@@ -1,0 +1,103 @@
+         //Lectura de XML --> Jaime
+					private void leerXML(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+						String rutaXML = "C:/ficheros/parking-movilidad-reducida.xml";
+					    File fichero = new File(rutaXML);
+					    List<String[]> datos = new ArrayList<>();
+					    
+					    if (fichero.exists()) {
+					        try {
+					            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+					            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+					            Document doc = dBuilder.parse(fichero);
+					            doc.getDocumentElement().normalize();
+					            
+					            org.w3c.dom.NodeList nList= doc.getElementsByTagName("parking");
+					            
+					            for (int i = 0; i < nList.getLength(); i++) {
+					            	org.w3c.dom.Node nNode= nList.item(i);
+					            	if(nNode.getNodeType()== org.w3c.dom.Node.ELEMENT_NODE) {
+					            		Element e= (Element) nNode;
+					            		String [] fila= new String[6];
+					            		for(int j=0; j<6;j++) {
+					            			fila[j]= e.getElementsByTagName("dato" + (j + 1)).item(0).getTextContent();
+					            		}
+					            		datos.add(fila);
+					            	}
+					            }
+					}catch (Exception e) {
+						request.setAttribute("mensajeError", e.getMessage());
+						request.getRequestDispatcher("Error.jsp").forward(request, response);
+						return;
+					}
+				}
+					    request.setAttribute("mensaje", "Lectura del fichero XML correcta");
+					    request.setAttribute("datosXML", datos);
+					    request.getRequestDispatcher("TratamientoFich.jsp").forward(request, response);   
+					}
+
+
+
+
+
+	//Escritura de XML Jaime
+					private void escribirXML(HttpServletRequest request) throws Exception {
+					    String rutaXML = "C:/ficheros/parking-movilidad-reducida.xml";
+					    File fichero = new File(rutaXML);
+					    
+					    
+					    if (!fichero.getParentFile().exists()) {
+					        fichero.getParentFile().mkdirs();
+					    }
+
+					    Document doc;
+					    DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+
+					    
+					    if (fichero.exists() && fichero.length() > 0) {
+					        doc = builder.parse(fichero);
+					    } else {
+					        doc = builder.newDocument();
+					        doc.appendChild(doc.createElement("parking-movilidad-reducida"));
+					    }
+
+					    
+					    Element parking = doc.createElement("parking");
+					    doc.getDocumentElement().appendChild(parking);
+
+					    for (int i = 1; i <= 6; i++) {
+					        Element dato = doc.createElement("dato" + i);
+					        dato.setTextContent(request.getParameter("dato" + i));
+					        parking.appendChild(dato);
+					    }
+
+					 
+					    javax.xml.transform.Transformer transformer = javax.xml.transform.TransformerFactory.newInstance().newTransformer();
+					    transformer.transform(new javax.xml.transform.dom.DOMSource(doc), new javax.xml.transform.stream.StreamResult(fichero));
+					}
+
+
+
+
+				//Seleccion Escritura
+								} else  
+								//Parte Jaime
+								if("XML".equalsIgnoreCase(formato)) {
+									
+									escribirXML(request);
+									 request.setAttribute("dato1", dato1);
+									    request.setAttribute("dato2", dato2);
+									    request.setAttribute("dato3", dato3);
+									    request.setAttribute("dato4", dato4);
+									    request.setAttribute("dato5", dato5);
+									    request.setAttribute("dato6", dato6);
+									
+									    request.setAttribute("mensaje", "Escritura en XML realizada correctamente");
+									    envio = "AccesoDatosA.jsp";
+									    request.getRequestDispatcher(envio).forward(request, response);
+									
+								}
+				//Seleccion lectura
+					} else if ("XML".equalsIgnoreCase(formato)) {
+							leerXML(request, response);
+							return;
+					 }	
