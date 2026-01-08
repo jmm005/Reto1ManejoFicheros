@@ -39,7 +39,7 @@ Aplicar los conocimientos de **acceso a datos** para trabajar con distintos tipo
 
 ## 📄 Estado del Proyecto
 
-Parte de RDF terminada
+Lectura/Escritura de: RDF, JSON y CSV completadas
 🚧 En desarrollo
 
 ---
@@ -47,6 +47,6 @@ Parte de RDF terminada
 ---
 
 ## Inportante
-El fichero de datos abiertos RDF debe estar en la partición C: en un carpeta llamada ficheros, para que la parte de RDF funcione, sino se creara un nuevo fichero RDF en esa ubicación.
+El fichero de datos deben estar en la partición C: en un carpeta llamada "ficheros" para que sobreescriba y lea dichos ficheros, sino, en el caso de la escritura, se creara un nuevo fichero en esta ubicación.
 
 ¡Gracias por visitar nuestro proyecto! 😊
